@@ -102,6 +102,9 @@ A main class to use as argument for `java`. When this environment variable is gi
 
 |===
 
+This is a selection of the environment variables available for configuring the behavior
+of the OpenJDK containers. For a comprehensive list, see <<envvarref>>.
+
 [[s2i-images-java-deploy-applications]]
 == Building and Deploying Java Applications
 
@@ -206,3 +209,381 @@ $ oc new-app <application_name>
 == Additional Information and Examples
 
 - Find additional information and examples in the link:https://access.redhat.com/documentation/en-us/red_hat_jboss_middleware_for_openshift/3/html-single/red_hat_java_s2i_for_openshift/[Red Hat JBoss Middleware] documentation.
+
+[[envvarref]]
+== Java Environment Variables Reference
+
+=== Configuration environment variables
+
+|===
+|Variable Name |Description |Example Value
+
+|AB_JOLOKIA_CONFIG
+|If set uses this file (including path) as Jolokia JVM agent properties (as described in Jolokia's link:https://www.jolokia.org/reference/html/agents.html#agents-jvm[reference manual]). If not set, the `/opt/jolokia/etc/jolokia.properties` will be created using the settings as defined in the manual. Otherwise the rest of the settings in this document are ignored.
+|/opt/jolokia/custom.properties
+
+|AB_JOLOKIA_DISCOVERY_ENABLED
+|Enable Jolokia discovery. Defaults to **false**.
+|true
+
+|AB_JOLOKIA_HOST
+|Host address to bind to. Defaults to **0.0.0.0**.
+|127.0.0.1
+
+|AB_JOLOKIA_ID
+|Agent ID to use (`$HOSTNAME` by default, which is the container id).
+|openjdk-app-1-xqlsj
+
+|AB_JOLOKIA_OFF
+|If set disables activation of Joloka (i.e. echos an empty value). By default, Jolokia is enabled.
+|true
+
+|AB_JOLOKIA_OPTS
+|Additional options to be appended to the agent configuration. They should be given in the format `key=value,key=value,...`.
+|backlog=20
+
+|AB_JOLOKIA_PASSWORD
+|Password for basic authentication. By default authentication is switched off.
+|mypassword
+
+|AB_JOLOKIA_PORT
+|Port to listen to. Defaults to **8778**.
+|5432
+
+|AB_JOLOKIA_USER
+|User for basic authentication. Defaults to **jolokia**.
+|myusername
+
+|AB_PROMETHEUS_ENABLE
+|Enable the use of the Prometheus agent
+|True
+
+|AB_PROMETHEUS_JMX_EXPORTER_PORT
+|Port to use for the Prometheus JMX Exporter.
+|9799
+
+|CONTAINER_CORE_LIMIT
+|A calculated core limit as described in https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt.
+|2
+
+|CONTAINER_MAX_MEMORY
+|Memory limit given to the container.
+|1024
+
+|GC_ADAPTIVE_SIZE_POLICY_WEIGHT
+|The weighting given to the current GC time versus previous GC times.
+|90
+
+|GC_CONTAINER_OPTIONS
+|specify Java GC to use. The value of this variable should contain the necessary JRE command-line options to specify the required GC, which will override the default of `-XX:+UseParallelOldGC`.
+|-XX:+UseG1GC
+
+|GC_MAX_HEAP_FREE_RATIO
+|Maximum percentage of heap free after GC to avoid shrinking.
+|40
+
+|GC_MAX_METASPACE_SIZE
+|The maximum metaspace size.
+|100
+
+|GC_METASPACE_SIZE
+|The initial metaspace size.
+|20
+
+|GC_MIN_HEAP_FREE_RATIO
+|Minimum percentage of heap free after GC to avoid expansion.
+|20
+
+|GC_TIME_RATIO
+|Specifies the ratio of the time spent outside the garbage collection (for example, the time spent for application execution) to the time spent in the garbage collection.
+|4
+
+|HTTPS_PROXY
+|The location of the https proxy. This takes precedence over **http_proxy** and **HTTP_PROXY**, and will be used for both Maven builds and Java runtime.
+|myuser@127.0.0.1:8080
+
+|HTTP_PROXY
+|The location of the http proxy. This will be used for both Maven builds and Java runtime.
+|127.0.0.1:8080
+
+|JAVA_APP_DIR
+|^ The directory where the application resides. All paths in your application are relative to this directory.
+|myapplication/
+
+|JAVA_ARGS
+|Arguments passed to the `java` application.
+|-
+
+|JAVA_CLASSPATH
+|^ The classpath to use. If not given, the startup script checks for a file `**JAVA_APP_DIR/classpath**` and use its content literally as classpath. If this file doesn't exists all jars in the app dir are added (`classes:**JAVA_APP_DIR/***`).
+|-
+
+|JAVA_DEBUG
+|If set remote debugging will be switched on. **Disabled by default.**
+|true
+
+|JAVA_DEBUG_PORT
+|Port used for remote debugging. Defaults to *5005*.
+|8787
+
+|JAVA_DIAGNOSTICS
+|Set this to get some diagnostics information to standard output when things are happening. **Disabled by default.**
+|true
+
+|JAVA_INITIAL_MEM_RATIO
+|Is used when no `-Xms` option is given in **JAVA_OPTS**. This is used to calculate a default initial heap memory based on the maximum heap memory. If used in a container without any memory constraints for the container then this option has no effect. If there is a memory constraint then `-Xms` is set to a ratio of the `-Xmx` memory as set here. The default is `25` which means 25% of the `-Xmx` is used as the initial heap size. You can skip this mechanism by setting this value to `0` in which case no `-Xms` option is added.
+|25
+
+|JAVA_LIB_DIR
+|^ Directory holding the Java jar files as well an optional `classpath` file which holds the classpath. Either as a single line classpath (colon separated) or with jar files listed line-by-line. If not set **JAVA_LIB_DIR** is the same as **JAVA_APP_DIR**.
+|-
+
+|JAVA_MAIN_CLASS
+|^ A main class to use as argument for `java`. When this environment variable is given, all jar files in **JAVA_APP_DIR** are added to the classpath as well as **JAVA_LIB_DIR**.
+|com.example.MainClass
+
+|JAVA_MAX_INITIAL_MEM
+|Is used when no `-Xms` option is given in **JAVA_OPTS**. This is used to calculate the maximum value of the initial heap memory. If used in a container without any memory constraints for the container then this option has no effect. If there is a memory constraint then `-Xms` is limited to the value set here. The default is 4096Mb which means the calculated value of `-Xms` never will be greater than 4096Mb. The value of this variable is expressed in MB.
+|4096
+
+|JAVA_MAX_MEM_RATIO
+|Is used when no `-Xmx` option is given in **JAVA_OPTS**. This is used to calculate a default maximal heap memory based on a containers restriction. If used in a container without any memory constraints for the container then this option has no effect. If there is a memory constraint then `-Xmx` is set to a ratio of the container available memory as set here. The default is `50` which means 50% of the available memory is used as an upper boundary. You can skip this mechanism by setting this value to `0` in which case no `-Xmx` option is added.
+|-
+
+|JAVA_OPTS
+|JVM options passed to the `java` command.
+|-verbose:class
+
+|JAVA_OPTS_APPEND
+|User specified Java options to be appended to generated options in JAVA_OPTS.
+|-Dsome.property=foo
+
+|LOGGING_SCRIPT_DEBUG
+|Set to true to enable script debugging.  Deprecates SCRIPT_DEBUG.
+|True
+
+|MAVEN_ARGS
+|Arguments to use when calling Maven, replacing the default `package hawt-app:build -DskipTests -e`. Please be sure to run the `hawt-app:build` goal (when not already bound to the `package` execution phase), otherwise the startup scripts won't work.
+|-e -Popenshift -DskipTests -Dcom.redhat.xpaas.repo.redhatga package
+
+|MAVEN_ARGS_APPEND
+|Additional Maven arguments.
+|-X -am -pl
+
+|MAVEN_CLEAR_REPO
+|If set then the Maven repository is removed after the artifact is built. This is useful for keeping the created application image small, but prevents *incremental* builds. Will be overridden by **S2I_ENABLE_INCREMENTAL_BUILDS**.  Defaults to *false*.
+|-
+
+|MAVEN_LOCAL_REPO
+|Directory to use as the local Maven repository.
+|/home/jboss/.m2/repository
+
+|MAVEN_MIRRORS
+|If set, multi-mirror support is enabled, and other MAVEN_MIRROR_* variables will be prefixed. For example: DEV_ONE_MAVEN_MIRROR_URL and QE_TWO_MAVEN_MIRROR_URL
+|dev-one,qe-two
+
+|MAVEN_MIRROR_URL
+|The base URL of a mirror used for retrieving artifacts.
+|http://10.0.0.1:8080/repository/internal/
+
+|MAVEN_REPOS
+|If set, multi-repo support is enabled, and other MAVEN_REPO_* variables will be prefixed. For example: DEV_ONE_MAVEN_REPO_URL and QE_TWO_MAVEN_REPO_URL
+|dev-one,qe-two
+
+|MAVEN_S2I_ARTIFACT_DIRS
+|Relative paths of source directories to scan for build output, which will be copied to $DEPLOY_DIR.  Defaults to **target**
+
+|target
+
+|MAVEN_S2I_GOALS
+|Space separated list of goals to be executed with maven build, e.g. mvn $MAVEN_S2I_GOALS.  Defaults to **package**
+
+|package install
+
+|MAVEN_SETTINGS_XML
+|Location of custom Maven settings.xml file to use.
+|/home/jboss/.m2/settings.xml
+
+|NO_PROXY
+|A comma separated lists of hosts, IP addresses or domains that can be accessed directly. This will be used for both Maven builds and Java runtime.
+|foo.example.com,bar.example.com
+
+|S2I_ARTIFACTS_DIR
+|^ Location mount for artifacts persisted with **save-artifacts** script, which are used with incremental builds.  This should not be overridden by end users.
+|${S2I_DESTINATION_DIR}/artifacts}
+
+|S2I_DESTINATION_DIR
+|^ Root directory for S2I mount, as specified by the **io.openshift.s2i.destination** label.  This should not be overridden by end users.
+|/tmp
+
+|S2I_ENABLE_INCREMENTAL_BUILDS
+|^ Do not remove source and intermediate build files so they can be saved for use with future builds.  Defaults to true.
+|true
+
+|S2I_IMAGE_SOURCE_MOUNTS
+|^ Comma separated list of relative paths in source directory which should be included in the image.  List may include wildcards, which are expanded using find.  By default, the contents of mounted directories are processed similarly to source folders, where the contents of $S2I_SOURCE_CONFIGURATION_DIR, $S2I_SOURCE_DATA_DIR, and $S2I_SOURCE_DEPLOYMENTS_DIR are copied to their respective target directories.  Alternatively, if an **install.sh** file is located in the root of the mount point, it is executed instead.  Deprecates CUSTOM_INSTALL_DIRECTORIES.
+|extras/*
+
+|S2I_SOURCE_CONFIGURATION_DIR
+|^ Relative path to directory containing application configuration files to be copied over to the product configuration directory, see **S2I_TARGET_CONFIGURATION_DIR**.  Defaults to **configuration**.
+|configuration
+
+|S2I_SOURCE_DATA_DIR
+|^ Relative path to directory containing application data files to be copied over to the product data directory, see **S2I_TARGET_DATA_DIR**.  Defaults to **data**.
+|data
+
+|S2I_SOURCE_DEPLOYMENTS_DIR
+|^ Relative path to directory containing binary files to be copied over to the product deployment directory, see **S2I_TARGET_DEPLOYMENTS_DIR**.  Defaults to **deployments**.
+|deployments
+
+|S2I_SOURCE_DIR
+|^ Location of mount for source code to be built.  This should not be overridden by end users.
+|${S2I_DESTINATION_DIR}/src}
+
+|S2I_TARGET_CONFIGURATION_DIR
+|^ Absolute path to which files located in $S2I_SOURCE_DIR/$S2I_SOURCE_CONFIGURATION_DIR are copied.
+|/opt/eap/standalone/configuration
+
+|S2I_TARGET_DATA_DIR
+|^ Absolute path to which files located in $S2I_SOURCE_DIR/$S2I_SOURCE_DATA_DIR are copied.
+|/opt/eap/standalone/data
+
+|S2I_TARGET_DEPLOYMENTS_DIR
+|^ Absolute path to which files located in $S2I_SOURCE_DIR/$S2I_SOURCE_DEPLOYMENTS_DIR are copied. Additionally, this is the directory to which build output is copied
+|/deployments
+
+|http_proxy
+|The location of the http proxy. This takes precedence over **HTTP_PROXY** and will be used for both Maven builds and Java runtime.
+|http://127.0.0.1:8080
+
+|https_proxy
+|The location of the https proxy. This takes precedence over **HTTPS_PROXY**, **http_proxy**, and **HTTP_PROXY**, and will be used for both Maven builds and Java runtime.
+|myuser:mypass@127.0.0.1:8080
+
+|no_proxy
+|A comma separated lists of hosts, IP addresses or domains that can be accessed directly. This takes precedence over **NO_PROXY** and will be used for both Maven builds and Java runtime.
+|*.example.com
+
+|prefix_MAVEN_MIRROR_ID
+|ID to be used for the specified mirror.  If ommitted, a unique ID will be generated.
+|internal-mirror
+
+|prefix_MAVEN_MIRROR_OF
+|Repository IDs mirrored by this entry.  Defaults to external:*
+|-
+
+|prefix_MAVEN_MIRROR_URL
+|The URL of the mirror.
+|http://10.0.0.1:8080/repository/internal
+
+|prefix_MAVEN_REPO_DIRECTORY_PERMISSIONS
+|Maven repository directory permissions
+|775
+
+|prefix_MAVEN_REPO_FILE_PERMISSIONS
+|Maven repository file permissions
+|664
+
+|prefix_MAVEN_REPO_HOST
+|Maven repository host (if not using fully defined url; will fallback to service)
+|repo.example.com
+
+|prefix_MAVEN_REPO_ID
+|Maven repository id
+|my-repo-id
+
+|prefix_MAVEN_REPO_LAYOUT
+|Maven repository layout
+|default
+
+|prefix_MAVEN_REPO_NAME
+|Maven repository name
+|my-repo-name
+
+|prefix_MAVEN_REPO_PASSPHRASE
+|Maven repository passphrase
+|maven1!
+
+|prefix_MAVEN_REPO_PASSWORD
+|Maven repository password
+|maven1!
+
+|prefix_MAVEN_REPO_PATH
+|Maven repository path (if not using fully defined url; will fallback to service)
+|/maven2/
+
+|prefix_MAVEN_REPO_PORT
+|Maven repository port (if not using fully defined url; will fallback to service)
+|8080
+
+|prefix_MAVEN_REPO_PRIVATE_KEY
+|Maven repository private key
+|${user.home}/.ssh/id_dsa
+
+|prefix_MAVEN_REPO_PROTOCOL
+|Maven repository protocol (if not using fully defined url; will fallback to service)
+|http
+
+|prefix_MAVEN_REPO_RELEASES_CHECKSUM_POLICY
+|Maven repository releases checksum policy
+|warn
+
+|prefix_MAVEN_REPO_RELEASES_ENABLED
+|Maven repository releases enabled
+|true
+
+|prefix_MAVEN_REPO_RELEASES_UPDATE_POLICY
+|Maven repository releases update policy
+|always
+
+|prefix_MAVEN_REPO_SERVICE
+|Maven repository service to lookup if prefix_MAVEN_REPO_URL not specified
+|buscentr-myapp
+
+|prefix_MAVEN_REPO_SNAPSHOTS_CHECKSUM_POLICY
+|Maven repository snapshots checksum policy
+|warn
+
+|prefix_MAVEN_REPO_SNAPSHOTS_ENABLED
+|Maven repository snapshots enabled
+|true
+
+|prefix_MAVEN_REPO_SNAPSHOTS_UPDATE_POLICY
+|Maven repository snapshots update policy
+|always
+
+|prefix_MAVEN_REPO_URL
+|Maven repository url (fully defined)
+|http://repo.example.com:8080/maven2/
+
+|prefix_MAVEN_REPO_USERNAME
+|Maven repository username
+|mavenUser
+|===
+
+=== Environment variables with default values
+
+|===
+|Variable Name |Description |Value
+
+|AB_JOLOKIA_AUTH_OPENSHIFT
+|Switch on client authentication for OpenShift TLS communication. The value of this parameter can be a relative distinguished name which must be contained in a presented client's certificate. Enabling this parameter will automatically switch Jolokia into https communication mode. The default CA cert is set to `/var/run/secrets/kubernetes.io/serviceaccount/ca.crt`.
+|true
+
+|AB_JOLOKIA_HTTPS
+|Switch on secure communication with https. By default self signed server certificates are generated if no `serverCert` configuration is given in **AB_JOLOKIA_OPTS**.
+|true
+
+|AB_JOLOKIA_PASSWORD_RANDOM
+|Determines if a random AB_JOLOKIA_PASSWORD be generated. Set to **true** to generate random password. Generated value will be written to `/opt/jolokia/etc/jolokia.pw`.
+|true
+
+|AB_PROMETHEUS_JMX_EXPORTER_CONFIG
+|Path to configuration to use for the Prometheus JMX Exporter
+|/opt/jboss/container/prometheus/etc/jmx-exporter-config.yaml
+
+|S2I_SOURCE_DEPLOYMENTS_FILTER
+|Space separated list of filters to be applied when copying deployments. Defaults to ** * **
+
+|*
+|===
